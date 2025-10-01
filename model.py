@@ -7,11 +7,11 @@ class Biblioteca:
 
 ### CRUD LIVROS ###
 
-    def cadastrar_livros(self, cod, titulo):
+    def cadastrar_livro(self, cod, titulo):
         livro = Livro()
         livro.set_cod(cod)
         livro.set_titulo(titulo)
-        self.livros[livro.get_cod()] = livro
+        self.livros[livro.cod] = livro
 
     def consultar_livro(self, cod):
         try:
@@ -28,7 +28,7 @@ class Biblioteca:
 
     def atualizar_livro(self, livro, cod, titulo):
         self.excluir_livro(livro.cod)
-        self.cadastrar_livros(cod, titulo)
+        self.cadastrar_livro(cod, titulo)
 
 ### CRUD LEITORES ###
 
