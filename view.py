@@ -114,7 +114,7 @@ class TelaMenuLeitores(Screen):
         match event.button.id:
             case "button_cadastrar_leitor":
                 cadastro_nome_leitor = self.query_one("#cadastro_nome_leitor")
-                cadastro_cpf_leitor = self.query_one("#cadastro_cpf_leitor") 
+                cadastro_cpf_leitor = self.query_one("#cadastro_cpf_leitor")
                 cpf = self.query_one("#cadastro_cpf_leitor").value                
                 nome = self.query_one("#cadastro_nome_leitor").value
                 biblioteca.cadastrar_leitor(cpf, nome)
@@ -161,14 +161,20 @@ class TelaAtualizaLeitor(Screen):
     def on_button_pressed(self, event: Button.Pressed):
         match event.button.id:
             case "atualizacao_cadastrar_leitor":
-                cpf = self.query_one("#atualizacao_cpf_leitor").value
+                novo_cpf = self.query_one("#atualizacao_cpf_leitor").value
                 novo_nome = self.query_one("#atualizacao_nome_leitor").value
-                biblioteca.cadastrar_leitor(cpf, novo_nome) # aqui o sistema cria um novo leitor do zero
-                # funciona, mas o objetivo é conservar o cpf inserido na busca da tela anterior e passar como
-                # parâmetro pro método de atualização
-                # também perguntar como zerar os placeholders dos inputs depois de apertar os botôes
-                self.notify(f"Cadastro alterado! \nNome: {novo_nome} \nCPF: {cpf}")
+                biblioteca.atualizar_leitor(biblioteca.LEITOR, novo_nome, novo_cpf)
+                self.limpar()
+                biblioteca.LEITOR = None
+                self.notify(f"Cadastro alterado! \nNome: {novo_nome} \nCPF: {novo_cpf}")
                 self.app.switch_screen("menu_leitores")
+
+    def limpar(self):
+        atualizacao_cpf_leitor = self.query_one("#atualizacao_cpf_leitor")
+        atualizacao_nome_leitor = self.query_one("#atualizacao_nome_leitor")
+        atualizacao_cpf_leitor.value = ""
+        atualizacao_nome_leitor.value = ""
+        atualizacao_nome_leitor.focus()
 
 class TelaMenuEmprestimos(Screen):
     def compose(self):

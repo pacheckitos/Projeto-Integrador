@@ -50,8 +50,10 @@ class Biblioteca:
         except KeyError:
             return False
 
-    def atualizar_leitor(self, cpf, novo_cpf, novo_nome):
-        self.leitores[cpf] = Leitor(novo_cpf, novo_nome)
+    def atualizar_leitor(self, leitor, nome, cpf):
+        self.excluir_leitor(leitor.cpf)
+        self.cadastrar_leitor(cpf, nome)
+        
 
 ### "CRUD" EMPRESTIMOS ###
 
