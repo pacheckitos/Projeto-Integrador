@@ -7,7 +7,7 @@ class Biblioteca:
 
 ### CRUD LIVROS ###
 
-    def cadastrar_livros():
+    def cadastrar_livros(self, cod, titulo):
         livro = Livro()
         livro.set_cod(cod)
         livro.set_titulo(titulo)
@@ -26,8 +26,9 @@ class Biblioteca:
         except KeyError:
             return False
 
-    def atualizar_livro(self, cod, titulo):
-        pass
+    def atualizar_livro(self, livro, cod, titulo):
+        self.excluir_livro(livro.cod)
+        self.cadastrar_livros(cod, titulo)
 
 ### CRUD LEITORES ###
 

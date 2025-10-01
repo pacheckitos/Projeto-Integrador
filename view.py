@@ -64,7 +64,7 @@ class TelaMenuLivros(Screen):
                 if biblioteca.consultar_livro(codigo) == False:
                     self.notify(f"Erro!\nLivro não encontrado para o código {codigo}")
                 else:
-                    biblioteca.excluir_livro(codigo)
+                    biblioteca.LIVRO = biblioteca.consultar_livro(codigo)
                     self.app.switch_screen("atualizacao_livro")
                 
 
@@ -80,11 +80,20 @@ class TelaAtualizaLivro(Screen):
 
     @on(Button.Pressed, "#atualizacao_cadastro_livro")
     def atualiza_livro(self):
-        codigo = self.query_one("#atualizacao_codigo_livro").value
+        novo_codigo = self.query_one("#atualizacao_codigo_livro").value
         novo_titulo = self.query_one("#atualizacao_titulo_livro").value
-        biblioteca.cadastrar_livro(codigo, novo_titulo)
-        self.notify(f"Cadastro alterado!\nTítulo: {novo_titulo}\nCódigo: {codigo}")
+        biblioteca.atualizar_livro(biblioteca.LIVRO, novo_codigo, novo_titulo)
+        self.limpar()
+        biblioteca.LEITOR = None # Mesmas alterações do excluir + cadastrar
+        self.notify(f"Cadastro alterado!\nTítulo: {novo_titulo}\nCódigo: {novo_codigo}")
         self.app.switch_screen("menu_leitores")
+
+    def limpar(self):
+        atualizacao_codigo_livro = self.query_one("#atualizacao_codigo_livro")
+        atualizacao_titulo_livro = self.query_one("#atualizacao_titulo_livro")
+        atualizacao_codigo_livro.value = ""
+        atualizacao_titulo_livro.value = ""
+        atualizacao_titulo_livro.focus()
 
 class TelaMenuLeitores(Screen):
     def compose(self):
@@ -158,16 +167,15 @@ class TelaAtualizaLeitor(Screen):
         yield Button("Atualizar leitor", id = "atualizacao_cadastrar_leitor")
         yield Footer()
 
-    def on_button_pressed(self, event: Button.Pressed):
-        match event.button.id:
-            case "atualizacao_cadastrar_leitor":
-                novo_cpf = self.query_one("#atualizacao_cpf_leitor").value
-                novo_nome = self.query_one("#atualizacao_nome_leitor").value
-                biblioteca.atualizar_leitor(biblioteca.LEITOR, novo_nome, novo_cpf)
-                self.limpar()
-                biblioteca.LEITOR = None
-                self.notify(f"Cadastro alterado! \nNome: {novo_nome} \nCPF: {novo_cpf}")
-                self.app.switch_screen("menu_leitores")
+    @ on(Button.Pressed, "#atualizacao_cadastrar_leitor")
+    def atualiza_leitor(self):
+        novo_cpf = self.query_one("#atualizacao_cpf_leitor").value
+        novo_nome = self.query_one("#atualizacao_nome_leitor").value
+        biblioteca.atualizar_leitor(biblioteca.LEITOR, novo_nome, novo_cpf)
+        self.limpar()
+        biblioteca.LEITOR = None
+        self.notify(f"Cadastro alterado! \nNome: {novo_nome} \nCPF: {novo_cpf}")
+        self.app.switch_screen("menu_leitores")
 
     def limpar(self):
         atualizacao_cpf_leitor = self.query_one("#atualizacao_cpf_leitor")
