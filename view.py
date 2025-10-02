@@ -217,6 +217,13 @@ class TelaMenuEmprestimos(Screen):
                 yield Button("Buscar empréstimos do leitor", id = "button_buscar_emprestimos_2")
         yield Footer()
 
+    def limpar_criacao(self):
+        busca_cpf_leitor = self.query_one("#busca_cpf_leitor")
+        busca_codigo_livro = self.query_one("#busca_codigo_livro")
+        busca_cpf_leitor.value = ""
+        busca_codigo_livro.value = ""
+        busca_cpf_leitor.focus()
+
     def on_button_pressed(self, event: Button.Pressed):
         match event.button.id:
             case "button_criar_emprestimo":
@@ -237,13 +244,20 @@ class TelaMenuEmprestimos(Screen):
                 else:
                     biblioteca.emprestar(biblioteca.LIVRO, biblioteca.LEITOR)
                     self.notify(f"Empréstimo realizado!\nLeitor: {biblioteca.LEITOR.nome}\nLivro: {biblioteca.LIVRO.titulo}\nData de devolução: {biblioteca.emprestimos[-1].data_devolucao}")
+                    self.limpar_criacao()
 
-class TelaCadastrarLeitores(Screen):
-    def compose(self):
-        yield Header(show_clock = True)
-        yield Static("Informe o nome do leitor:")
-        yield Input(placeholder = "Nome completo")
-        yield Static("Informe o CPF do leitor:")
-        yield Input(placeholder = "CPF")
-        yield Button("Cadastrar leitor", id = "button_cadastrar_leitor")
-        yield Footer()
+            case "button_buscar_emprestimos_1":
+                cpf = self.query_one("#tab_registrar_devolucao Input").value
+                leitor = biblioteca.consultar_leitor(cpf)
+                if leitor == False:
+                    self.notify(f"Erro!\nLeitor não encontrado para o CPF {cpf}")
+                    self.query_one("#tab_registrar_devolucao Input").value = ""
+                    self.query_one("#tab_registrar_devolucao Input").focus()
+                elif len(leitor.emprestimos) == 0:
+                    self.notify(f"O leitor {leitor.nome} não possui empréstimos ativos.")
+                    self.query_one("#tab_registrar_devolucao Input").value = ""
+                    self.query_one("#tab_registrar_devolucao Input").focus()
+                else:
+                    detalhes = "\n".join([f"Código: {emp.livro.cod} | Título: {emp.livro.titulo} | Data de devolução: {emp.data_devolucao}" for emp in leitor.emprestimos])
+                    self.notify(f"Empréstimos do leitor {leitor.nome}:\n{detalhes}\n\nPara registrar a devolução, informe o código do livro e pressione 'Enter'.")
+                    self.app.push_screen(TelaRegistrarDevolucao(leitor)) 
