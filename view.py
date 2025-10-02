@@ -245,19 +245,3 @@ class TelaMenuEmprestimos(Screen):
                     biblioteca.emprestar(biblioteca.LIVRO, biblioteca.LEITOR)
                     self.notify(f"Empréstimo realizado!\nLeitor: {biblioteca.LEITOR.nome}\nLivro: {biblioteca.LIVRO.titulo}\nData de devolução: {biblioteca.emprestimos[-1].data_devolucao}")
                     self.limpar_criacao()
-
-            case "button_buscar_emprestimos_1":
-                cpf = self.query_one("#tab_registrar_devolucao Input").value
-                leitor = biblioteca.consultar_leitor(cpf)
-                if leitor == False:
-                    self.notify(f"Erro!\nLeitor não encontrado para o CPF {cpf}")
-                    self.query_one("#tab_registrar_devolucao Input").value = ""
-                    self.query_one("#tab_registrar_devolucao Input").focus()
-                elif len(leitor.emprestimos) == 0:
-                    self.notify(f"O leitor {leitor.nome} não possui empréstimos ativos.")
-                    self.query_one("#tab_registrar_devolucao Input").value = ""
-                    self.query_one("#tab_registrar_devolucao Input").focus()
-                else:
-                    detalhes = "\n".join([f"Código: {emp.livro.cod} | Título: {emp.livro.titulo} | Data de devolução: {emp.data_devolucao}" for emp in leitor.emprestimos])
-                    self.notify(f"Empréstimos do leitor {leitor.nome}:\n{detalhes}\n\nPara registrar a devolução, informe o código do livro e pressione 'Enter'.")
-                    self.app.push_screen(TelaRegistrarDevolucao(leitor)) 
