@@ -243,5 +243,7 @@ class TelaMenuEmprestimos(Screen):
 
                 else:
                     biblioteca.emprestar(biblioteca.LIVRO, biblioteca.LEITOR)
-                    self.notify(f"Empréstimo realizado!\nLeitor: {biblioteca.LEITOR.nome}\nLivro: {biblioteca.LIVRO.titulo}\nData de devolução: {biblioteca.emprestimos[-1].data_devolucao}")
+                    self.notify(f"Empréstimo realizado!\nLeitor: {biblioteca.LEITOR.nome}\nLivro: {biblioteca.LIVRO.titulo}\nData de devolução: {biblioteca.emprestimos[-1].data_devolucao}\n Código do empréstimo: {biblioteca.emprestimos[-1].cod}")
                     self.limpar_criacao()
+
+                    
