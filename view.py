@@ -51,6 +51,11 @@ class TelaMenuLivros(Screen):
                 codigo = self.query_one("#cadastro_codigo_livro").value
                 biblioteca.cadastrar_livro(codigo, titulo)
                 self.notify(f"Cadastro realizado!\nLivro: {titulo}\nCódigo: {codigo}")
+                cadastro_titulo_livro = self.query_one("#cadastro_titulo_livro")
+                cadastro_codigo_livro = self.query_one("#cadastro_codigo_livro")
+                cadastro_titulo_livro.value = ""
+                cadastro_codigo_livro.value = ""
+                cadastro_titulo_livro.focus()
 
             case "button_excluir_livro":
                 cod = self.query_one("#excluir_codigo_livro").value
@@ -58,6 +63,9 @@ class TelaMenuLivros(Screen):
                     self.notify(f"Cadastro excluído!\nCódigo: {cod}")
                 else:
                     self.notify(f"Erro!\nLivro não encontrado para o código {cod}")
+                excluir_codigo_livro = self.query_one("#excluir_codigo_livro")
+                excluir_codigo_livro.value = ""
+                excluir_codigo_livro.focus()
 
             case "button_busca_livro":
                 codigo = self.query_one("#buscar_codigo_livro").value
@@ -66,7 +74,8 @@ class TelaMenuLivros(Screen):
                 else:
                     biblioteca.LIVRO = biblioteca.consultar_livro(codigo)
                     self.app.switch_screen("atualizacao_livro")
-                
+                buscar_codigo_livro = self.query_one("#buscar_codigo_livro")
+                buscar_codigo_livro.value = ""                
 
 class TelaAtualizaLivro(Screen):
     def compose(self):
@@ -84,9 +93,9 @@ class TelaAtualizaLivro(Screen):
         novo_titulo = self.query_one("#atualizacao_titulo_livro").value
         biblioteca.atualizar_livro(biblioteca.LIVRO, novo_codigo, novo_titulo)
         self.limpar()
-        biblioteca.LEITOR = None # Mesmas alterações do excluir + cadastrar
+        biblioteca.LIVRO = None # Mesmas alterações do excluir + cadastrar
         self.notify(f"Cadastro alterado!\nTítulo: {novo_titulo}\nCódigo: {novo_codigo}")
-        self.app.switch_screen("menu_leitores")
+        self.app.switch_screen("menu_livros")
 
     def limpar(self):
         atualizacao_codigo_livro = self.query_one("#atualizacao_codigo_livro")
@@ -191,11 +200,12 @@ class TelaMenuEmprestimos(Screen):
             
             with TabPane("Criar empréstimo", id = "tab_criar_emprestimo"):
                 yield Static("Informe o CPF do leitor:")
-                yield Input(placeholder = "CPF")
+                yield Input(placeholder = "CPF", id="busca_cpf_leitor")
                 yield Static("Informe o código de cadastro do livro:")
-                yield Input(placeholder = "Código de cadastro")
+                yield Input(placeholder = "Código de cadastro", id="busca_codigo_livro")
                 yield Button("Criar empréstimo", id = "button_criar_emprestimo")
-            
+                '''yield Markdown(f"### Empréstimos realizados:\n{"aaa"}")''' #ferramenta pra criar markdowns no sistema
+
             with TabPane("Registrar devolução", id = "tab_registrar_devolucao"):
                 yield Static("Informe o CPF do leitor:")
                 yield Input(placeholder = "CPF")
@@ -205,6 +215,28 @@ class TelaMenuEmprestimos(Screen):
                 yield Static("Informe o CPF do leitor:")
                 yield Input(placeholder = "CPF")
                 yield Button("Buscar empréstimos do leitor", id = "button_buscar_emprestimos_2")
+        yield Footer()
+
+    def on_button_pressed(self, event: Button.Pressed):
+        match event.button.id:
+            case "button_criar_emprestimo":
+                biblioteca.LEITOR = biblioteca.consultar_leitor(self.query_one("#busca_cpf_leitor").value)
+                biblioteca.LIVRO = biblioteca.consultar_livro(self.query_one("#busca_codigo_livro").value)
+                if biblioteca.LEITOR == None:
+                    self.notify(f"Erro!\nLeitor não encontrado para o CPF {self.query_one('#busca_cpf_leitor').value}")
+                    busca_cpf_leitor = self.query_one("#busca_cpf_leitor")
+                    busca_cpf_leitor.value = ""
+                    busca_cpf_leitor.focus()
+
+                elif biblioteca.LIVRO == None:
+                    self.notify(f"Erro!\nLivro não encontrado para o código {self.query_one('#busca_codigo_livro').value}")
+                    busca_codigo_livro = self.query_one("#busca_codigo_livro")
+                    busca_codigo_livro.value = ""
+                    busca_codigo_livro.focus()
+
+                else:
+                    biblioteca.emprestar(biblioteca.LIVRO, biblioteca.LEITOR)
+                    self.notify(f"Empréstimo realizado!\nLeitor: {biblioteca.LEITOR.nome}\nLivro: {biblioteca.LIVRO.titulo}\nData de devolução: {biblioteca.emprestimos[-1].data_devolucao}")
 
 class TelaCadastrarLeitores(Screen):
     def compose(self):
