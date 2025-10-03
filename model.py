@@ -60,9 +60,9 @@ class Biblioteca:
 
     def emprestar(self, livro, leitor):
         data_de_devolucao = self.calcular_data_devolucao()
-        cod = self.codigo_emprestimo()
+        codigo_de_emprestimo = self.codigo_emprestimo()
         livro.set_emprestado()
-        novo_emprestimo = Emprestimo(livro, leitor, data_de_devolucao, cod)
+        novo_emprestimo = Emprestimo(livro, leitor, data_de_devolucao, codigo_de_emprestimo)
         self.emprestimos.append(novo_emprestimo)
         return novo_emprestimo
 
@@ -83,18 +83,15 @@ class Biblioteca:
         import datetime
         hoje = datetime.date.today()
         tempo_de_emprestimo = datetime.timedelta(weeks=1)
-        # somamos 1 semana à data de emprestimo
         return hoje + tempo_de_emprestimo
 
     def codigo_emprestimo(self):
-        # implementar lógica que gera unicos de empréstimo
-        # range: 0001 a 9999
         if not biblioteca.emprestimos:
-            return "0001"
+            return "1".zfill(5)
         else:
             ultimo_codigo = biblioteca.emprestimos[-1].cod
             novo_codigo = int(ultimo_codigo) + 1
-            return str(novo_codigo).zfill(4)
+            return str(novo_codigo).zfill(5)
 
 class Emprestimo:
 
